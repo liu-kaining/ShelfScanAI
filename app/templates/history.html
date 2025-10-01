@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}历史记录 - ShelfScanAI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            扫描历史记录
+                        </h4>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-outline-light btn-sm" onclick="refreshHistory()">
+                                <i class="fas fa-refresh me-1"></i>
+                                刷新
+                            </button>
+                            <button class="btn btn-outline-light btn-sm" onclick="clearAllHistory()">
+                                <i class="fas fa-trash me-1"></i>
+                                清空历史
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <!-- 筛选器 -->
+                    <div class="p-3 bg-light border-bottom">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="searchInput" 
+                                           placeholder="搜索书名或作者...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="dateFilter">
+                                    <option value="">所有时间</option>
+                                    <option value="today">今天</option>
+                                    <option value="week">本周</option>
+                                    <option value="month">本月</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="booksFilter">
+                                    <option value="">所有数量</option>
+                                    <option value="1-5">1-5本</option>
+                                    <option value="6-10">6-10本</option>
+                                    <option value="11+">11本以上</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-primary w-100" onclick="applyFilters()">
+                                    <i class="fas fa-filter me-1"></i>
+                                    筛选
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 历史记录列表 -->
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>扫描时间</th>
+                                    <th>模型</th>
+                                    <th>书籍数量</th>
+                                    <th>处理时间</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- 数据将通过JavaScript动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 空状态 -->
+                    <div id="emptyState" class="text-center py-5 d-none">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">暂无扫描记录</h5>
+                        <p class="text-muted">开始扫描您的第一张图片吧！</p>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                            <i class="fas fa-camera me-2"></i>
+                            开始扫描
+                        </a>
+                    </div>
+
+                    <!-- 加载状态 -->
+                    <div id="loadingState" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">加载中...</span>
+                        </div>
+                        <p class="text-muted mt-2">加载历史记录中...</p>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="p-3 border-top">
+                        <nav aria-label="历史记录分页">
+                            <ul class="pagination justify-content-center mb-0" id="pagination">
+                                <!-- 分页按钮将通过JavaScript动态生成 -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 详情模态框 -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-book me-2"></i>
+                    扫描详情
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detailContent">
+                    <!-- 详情内容将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="exportFromDetail()">
+                    <i class="fas fa-download me-1"></i>
+                    导出结果
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings Debug</title>
+</head>
+<body>
+    <h1>Settings Debug Test</h1>
+    <div id="debug-output"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <script>
+        // 测试API调用
+        async function testAPIs() {
+            const output = document.getElementById('debug-output');
+            
+            try {
+                // 测试配置API
+                output.innerHTML += '<p>🔍 测试配置API...</p>';
+                const configResponse = await axios.get('http://localhost:5006/api/config');
+                output.innerHTML += `<p>✅ 配置API: ${configResponse.status} - ${JSON.stringify(configResponse.data)}</p>`;
+                
+                // 测试统计API
+                output.innerHTML += '<p>🔍 测试统计API...</p>';
+                const statsResponse = await axios.get('http://localhost:5006/api/stats');
+                output.innerHTML += `<p>✅ 统计API: ${statsResponse.status} - ${JSON.stringify(statsResponse.data)}</p>`;
+                
+                output.innerHTML += '<p>🎉 所有API测试通过！</p>';
+                
+            } catch (error) {
+                output.innerHTML += `<p>❌ 错误: ${error.message}</p>`;
+                console.error('API测试错误:', error);
+            }
+        }
+        
+        // 页面加载后运行测试
+        window.addEventListener('load', testAPIs);
+    </script>
+</body>
+</html>

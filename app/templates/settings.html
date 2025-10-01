@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}设置 - ShelfScanAI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>
+                        系统设置
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- API配置 -->
+                    <div class="mb-5">
+                        <h5 class="mb-3">
+                            <i class="fas fa-key me-2"></i>
+                            API配置
+                        </h5>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            请配置您的Qwen API Key以使用图书识别功能
+                        </div>
+                        
+                        <form id="apiConfigForm">
+                            <div class="mb-3">
+                                <label for="apiKey" class="form-label">Qwen API Key</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="apiKey" 
+                                           placeholder="请输入您的Qwen API Key">
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">
+                                    API Key将加密存储，不会以明文形式保存
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="customPrompt" class="form-label">自定义提示词</label>
+                                <textarea class="form-control" id="customPrompt" rows="4" 
+                                          placeholder="您可以自定义发送给AI的提示词，留空使用默认提示词"></textarea>
+                                <div class="form-text">
+                                    高级功能：自定义识别提示词以获得更好的识别效果
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary" onclick="saveConfig()">
+                                    <i class="fas fa-save me-2"></i>
+                                    保存配置
+                                </button>
+                                <button type="button" class="btn btn-outline-info" onclick="validateApiKey()">
+                                    <i class="fas fa-check me-2"></i>
+                                    验证API Key
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="loadConfig()">
+                                    <i class="fas fa-refresh me-2"></i>
+                                    重新加载
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 系统信息 -->
+                    <div class="mb-5">
+                        <h5 class="mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            系统信息
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-database me-2"></i>
+                                            存储状态
+                                        </h6>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                临时文件: <span id="tempFiles">-</span> 个<br>
+                                                总大小: <span id="totalSize">-</span> MB<br>
+                                                活跃会话: <span id="activeSessions">-</span> 个
+                                            </small>
+                                        </p>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="cleanupTempFiles()">
+                                            <i class="fas fa-trash me-1"></i>
+                                            清理临时文件
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-tasks me-2"></i>
+                                            任务统计
+                                        </h6>
+                                        <p class="card-text">
+                                            <small class="text-muted">
+                                                总任务: <span id="totalTasks">-</span> 个<br>
+                                                成功率: <span id="successRate">-</span> %<br>
+                                                已完成: <span id="completedTasks">-</span> 个
+                                            </small>
+                                        </p>
+                                        <button class="btn btn-outline-info btn-sm" onclick="refreshStats()">
+                                            <i class="fas fa-refresh me-1"></i>
+                                            刷新统计
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 高级设置 -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-sliders-h me-2"></i>
+                            高级设置
+                        </h5>
+                        
+                        <div class="accordion" id="advancedSettings">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                        <i class="fas fa-search me-2"></i>
+                                        搜索配置
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse" 
+                                     data-bs-parent="#advancedSettings">
+                                    <div class="accordion-body">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            搜索功能需要额外配置Google Custom Search API或豆瓣API
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="googleApiKey" class="form-label">Google API Key (可选)</label>
+                                            <input type="password" class="form-control" id="googleApiKey" 
+                                                   placeholder="用于搜索书籍详细信息">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="googleSearchId" class="form-label">Google Search Engine ID (可选)</label>
+                                            <input type="text" class="form-control" id="googleSearchId" 
+                                                   placeholder="自定义搜索引擎ID">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                        <i class="fas fa-cog me-2"></i>
+                                        性能设置
+                                    </button>
+                                </h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse" 
+                                     data-bs-parent="#advancedSettings">
+                                    <div class="accordion-body">
+                                        <div class="mb-3">
+                                            <label for="maxWorkers" class="form-label">最大并发任务数</label>
+                                            <input type="number" class="form-control" id="maxWorkers" 
+                                                   value="3" min="1" max="10">
+                                            <div class="form-text">
+                                                同时处理的最大任务数量，建议值为3
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="imageQuality" class="form-label">图片质量</label>
+                                            <select class="form-select" id="imageQuality">
+                                                <option value="high">高质量 (较慢)</option>
+                                                <option value="medium" selected>中等质量 (推荐)</option>
+                                                <option value="low">低质量 (较快)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="text-center">
+                        <button class="btn btn-success btn-lg me-3" onclick="saveAllSettings()">
+                            <i class="fas fa-save me-2"></i>
+                            保存所有设置
+                        </button>
+                        <button class="btn btn-outline-secondary btn-lg" onclick="resetToDefault()">
+                            <i class="fas fa-undo me-2"></i>
+                            恢复默认设置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

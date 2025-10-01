@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - ShelfScanAI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- 欢迎区域 -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-camera me-3"></i>
+                    智能图书扫描仪
+                </h1>
+                <p class="lead text-muted">
+                    只需拍摄一张照片，即可快速识别、汇总和深化理解实体书本的核心信息
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要功能区域 -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <!-- 上传区域 -->
+                    <div id="uploadSection" class="text-center">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                <h4>上传图片开始识别</h4>
+                                <p class="text-muted mb-4">
+                                    支持 JPG、PNG、WEBP 格式，最大 10MB
+                                </p>
+                                <input type="file" id="imageInput" class="d-none" accept="image/*">
+                                <button class="btn btn-primary btn-lg" onclick="document.getElementById('imageInput').click()">
+                                    <i class="fas fa-plus me-2"></i>
+                                    选择图片
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 图片预览 -->
+                        <div id="imagePreview" class="d-none mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <img id="previewImg" class="img-fluid rounded shadow" alt="预览图片">
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex flex-column h-100 justify-content-center">
+                                        <h5>图片预览</h5>
+                                        <p class="text-muted" id="imageInfo"></p>
+                                        <div class="btn-group" role="group">
+                                            <button id="recognizeBtn" class="btn btn-success" style="display: none;" onclick="startRecognition()">
+                                                <i class="fas fa-magic me-2"></i>
+                                                开始识别
+                                            </button>
+                                            <button class="btn btn-outline-secondary" onclick="resetUpload()">
+                                                <i class="fas fa-times me-2"></i>
+                                                重新选择
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 识别进度 -->
+                    <div id="progressSection" class="d-none mt-4">
+                        <div class="text-center">
+                            <h5 id="progressTitle">正在识别图片中的书籍...</h5>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p id="progressMessage" class="text-muted">准备开始识别...</p>
+                            <button class="btn btn-outline-danger btn-sm" onclick="cancelRecognition()">
+                                <i class="fas fa-stop me-1"></i>
+                                取消识别
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 识别结果 -->
+                    <div id="resultSection" class="d-none mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4>
+                                <i class="fas fa-book me-2"></i>
+                                识别结果
+                            </h4>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-outline-primary" onclick="exportToExcel()">
+                                    <i class="fas fa-file-excel me-1"></i>
+                                    导出Excel
+                                </button>
+                                <button class="btn btn-outline-success" onclick="exportToImage()">
+                                    <i class="fas fa-image me-1"></i>
+                                    导出长图
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="resetAll()">
+                                    <i class="fas fa-redo me-1"></i>
+                                    重新识别
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="booksTable" class="table-responsive">
+                            <!-- 书籍表格将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 使用提示 -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-8">
+            <div class="card border-0 bg-light">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-center mb-4">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        使用提示
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="fas fa-camera fa-2x text-primary mb-2"></i>
+                            <h6>清晰拍摄</h6>
+                            <p class="text-muted small">确保书籍封面清晰可见，光线充足</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="fas fa-angle-double-right fa-2x text-success mb-2"></i>
+                            <h6>一键识别</h6>
+                            <p class="text-muted small">上传图片后点击开始识别即可</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="fas fa-download fa-2x text-info mb-2"></i>
+                            <h6>多种导出</h6>
+                            <p class="text-muted small">支持Excel和长图格式导出</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/image-processor.js') }}"></script>
+<script src="{{ url_for('static', filename='js/recognition.js') }}"></script>
+<script src="{{ url_for('static', filename='js/export-utils.js') }}"></script>
+{% endblock %}
